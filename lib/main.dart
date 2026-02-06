@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -214,6 +215,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   bool _isWatchingAd = false;
 
   String _pickChallenge() {
+    if (_challenges.isEmpty) {
+      return 'Brak dostępnych wyzwań. Spróbuj ponownie później.';
+    }
     if (_challenges.length < 2) {
       return _challenges.first;
     }
@@ -459,32 +463,38 @@ class AdDialog extends StatefulWidget {
 class _AdDialogState extends State<AdDialog> {
   late int _secondsLeft;
   late int _totalSeconds;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _totalSeconds = widget.seconds.clamp(1, 999);
     _secondsLeft = _totalSeconds;
-    _tick();
-  }
-
-  Future<void> _tick() async {
-    while (mounted && _secondsLeft > 0) {
-      await Future<void>.delayed(const Duration(seconds: 1));
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         return;
       }
-      setState(() => _secondsLeft -= 1);
-    }
+      if (_secondsLeft <= 1) {
+        setState(() => _secondsLeft = 0);
+        timer.cancel();
+        Navigator.of(context).pop();
+      } else {
+        setState(() => _secondsLeft -= 1);
+      }
+    });
+  }
 
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
+    final progress = _totalSeconds == 0
+        ? 0.0
+        : (_totalSeconds - _secondsLeft) / _totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
