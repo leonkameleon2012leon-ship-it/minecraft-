@@ -474,10 +474,8 @@ class _AdDialogState extends State<AdDialog> {
   @override
   void initState() {
     super.initState();
-    final normalizedSeconds =
-        widget.seconds < kMinAdSeconds ? kMinAdSeconds : widget.seconds;
     _totalSeconds =
-        normalizedSeconds > kMaxAdSeconds ? kMaxAdSeconds : normalizedSeconds;
+        max(kMinAdSeconds, min(widget.seconds, kMaxAdSeconds));
     _secondsLeft = _totalSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
@@ -502,9 +500,7 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final safeTotalSeconds =
-        _totalSeconds <= 0 ? kMinAdSeconds : _totalSeconds;
-    final progress = (safeTotalSeconds - _secondsLeft) / safeTotalSeconds;
+    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
