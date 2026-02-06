@@ -434,8 +434,7 @@ class MinecraftAnimation extends StatefulWidget {
 
 class _MinecraftAnimationState extends State<MinecraftAnimation>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  bool _isInitialized = false;
+  AnimationController? _controller;
 
   @override
   void initState() {
@@ -449,7 +448,6 @@ class _MinecraftAnimationState extends State<MinecraftAnimation>
         vsync: this,
         duration: const Duration(seconds: 4),
       )..repeat(reverse: true);
-      _isInitialized = true;
       
       if (kDebugMode) {
         print('✅ MinecraftAnimation controller created successfully');
@@ -459,30 +457,28 @@ class _MinecraftAnimationState extends State<MinecraftAnimation>
         print('🔴 Error initializing MinecraftAnimation: $e');
         print('Stack trace: $stackTrace');
       }
-      _isInitialized = false;
+      _controller = null;
     }
   }
 
   @override
   void dispose() {
-    if (_isInitialized) {
-      _controller.dispose();
-    }
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     // If animation controller failed to initialize, show static version
-    if (!_isInitialized) {
+    if (_controller == null) {
       return _buildStaticAnimation();
     }
     
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _controller!,
       builder: (context, child) {
         try {
-          final t = Curves.easeInOut.transform(_controller.value);
+          final t = Curves.easeInOut.transform(_controller!.value);
           return SizedBox(
             height: widget.height,
             child: Stack(

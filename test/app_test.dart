@@ -57,7 +57,7 @@ void main() {
 
     // Verify we navigated to player setup screen
     expect(find.text('Twoje dane'), findsOneWidget);
-    expect(find.text('Podaj imię i wersję, aby ruszyć dalej.'), findsAtLeastNWidgets(0));
+    expect(find.text('Powiedz nam jak się nazywasz i w co grasz.'), findsOneWidget);
   });
 
   testWidgets('PlayerSetupScreen requires name and version', (WidgetTester tester) async {
