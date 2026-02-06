@@ -500,7 +500,8 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
+    final progress =
+        (_totalSeconds - _secondsLeft) / max(_totalSeconds, kMinAdSeconds);
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
