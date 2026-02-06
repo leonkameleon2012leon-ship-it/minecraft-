@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -823,15 +822,17 @@ class _AnimatedButtonState extends State<AnimatedButton>
           final scale = 1.0 - (_controller.value * 0.05);
           return Transform.scale(
             scale: scale,
-            child: FilledButton.icon(
-              onPressed: null, // Handled by GestureDetector
-              style: FilledButton.styleFrom(
-                backgroundColor: _isPressed
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
-                    : null,
+            child: AbsorbPointer(
+              child: FilledButton.icon(
+                onPressed: widget.onPressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor: _isPressed
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
+                      : null,
+                ),
+                icon: widget.icon ?? const SizedBox.shrink(),
+                label: widget.label,
               ),
-              icon: widget.icon ?? const SizedBox.shrink(),
-              label: widget.label,
             ),
           );
         },
@@ -904,10 +905,22 @@ class _ParticleBackgroundState extends State<ParticleBackground>
         opacity: 0.1 + _random.nextDouble() * 0.3,
       ));
     }
+
+    _controller.addListener(_updateParticles);
+  }
+
+  void _updateParticles() {
+    for (var particle in _particles) {
+      particle.y -= particle.speed;
+      if (particle.y < 0) {
+        particle.y = 1.0;
+      }
+    }
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_updateParticles);
     _controller.dispose();
     super.dispose();
   }
@@ -918,7 +931,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
       animation: _controller,
       builder: (context, child) {
         return CustomPaint(
-          painter: ParticlePainter(particles: _particles, time: _controller.value),
+          painter: ParticlePainter(particles: List.from(_particles)),
           size: Size.infinite,
         );
       },
@@ -944,18 +957,12 @@ class Particle {
 
 class ParticlePainter extends CustomPainter {
   final List<Particle> particles;
-  final double time;
 
-  ParticlePainter({required this.particles, required this.time});
+  ParticlePainter({required this.particles});
 
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
-      particle.y -= particle.speed;
-      if (particle.y < 0) {
-        particle.y = 1.0;
-      }
-
       final paint = Paint()
         ..color = const Color(0xFF4CAF50).withOpacity(particle.opacity)
         ..style = PaintingStyle.fill;
@@ -969,7 +976,18 @@ class ParticlePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ParticlePainter oldDelegate) => true;
+  bool shouldRepaint(ParticlePainter oldDelegate) {
+    // Compare particle positions to determine if repaint is needed
+    if (oldDelegate.particles.length != particles.length) {
+      return true;
+    }
+    for (int i = 0; i < particles.length; i++) {
+      if (oldDelegate.particles[i].y != particles[i].y) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 // Explosion effect for challenge generation
@@ -1026,7 +1044,9 @@ class ExplosionPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ExplosionPainter oldDelegate) => true;
+  bool shouldRepaint(ExplosionPainter oldDelegate) {
+    return progress != oldDelegate.progress;
+  }
 }
 
 // Block types enum
