@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 const String kEmptyChallengeMessage =
     'Brak dostępnych wyzwań. Spróbuj ponownie później.';
+const int kMinAdSeconds = 1;
+const int kMaxAdSeconds = 999;
 
 void main() {
   runApp(const MineQuestApp());
@@ -472,8 +474,10 @@ class _AdDialogState extends State<AdDialog> {
   @override
   void initState() {
     super.initState();
-    final normalizedSeconds = widget.seconds < 1 ? 1 : widget.seconds;
-    _totalSeconds = normalizedSeconds > 999 ? 999 : normalizedSeconds;
+    final normalizedSeconds =
+        widget.seconds < kMinAdSeconds ? kMinAdSeconds : widget.seconds;
+    _totalSeconds =
+        normalizedSeconds > kMaxAdSeconds ? kMaxAdSeconds : normalizedSeconds;
     _secondsLeft = _totalSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
@@ -498,7 +502,9 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
+    final progress = _totalSeconds == 0
+        ? 0.0
+        : (_totalSeconds - _secondsLeft) / _totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
