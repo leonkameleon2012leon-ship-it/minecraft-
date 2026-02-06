@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+const String kEmptyChallengeMessage =
+    'Brak dostępnych wyzwań. Spróbuj ponownie później.';
+
 void main() {
   runApp(const MineQuestApp());
 }
@@ -216,9 +219,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   String _pickChallenge() {
     if (_challenges.isEmpty) {
-      return 'Brak dostępnych wyzwań. Spróbuj ponownie później.';
+      return kEmptyChallengeMessage;
     }
     if (_challenges.length < 2) {
+      _previousChallenge = _challenges.first;
       return _challenges.first;
     }
     String candidate;
@@ -468,7 +472,8 @@ class _AdDialogState extends State<AdDialog> {
   @override
   void initState() {
     super.initState();
-    _totalSeconds = widget.seconds.clamp(1, 999);
+    final normalizedSeconds = widget.seconds < 1 ? 1 : widget.seconds;
+    _totalSeconds = normalizedSeconds > 999 ? 999 : normalizedSeconds;
     _secondsLeft = _totalSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
