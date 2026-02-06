@@ -66,10 +66,10 @@ class WelcomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Row(
-            children: const [
-              Icon(Icons.auto_awesome, color: Color(0xFFFFD54F)),
-              SizedBox(width: 8),
-              Expanded(
+            children: [
+              const Icon(Icons.auto_awesome, color: Color(0xFFFFD54F)),
+              const SizedBox(width: 8),
+              const Expanded(
                 child: Text(
                   'Animacje inspirowane światem Minecrafta wprowadzą Cię w klimat.',
                   style: TextStyle(color: Color(0xFFCFD8DC)),
@@ -471,8 +471,8 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        (widget.seconds - _secondsLeft) / widget.seconds.clamp(1, 999);
+    final totalSeconds = widget.seconds.clamp(1, 999);
+    final progress = (totalSeconds - _secondsLeft) / totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
