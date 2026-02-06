@@ -223,7 +223,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     if (_challenges.isEmpty) {
       return kEmptyChallengeMessage;
     }
-    if (_challenges.length < 2) {
+    if (_challenges.length == 1) {
       _previousChallenge = null;
       return _challenges.first;
     }
@@ -500,8 +500,8 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        (_totalSeconds - _secondsLeft) / max(_totalSeconds, kMinAdSeconds);
+    assert(_totalSeconds >= kMinAdSeconds);
+    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
