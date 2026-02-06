@@ -1,5 +1,5 @@
 name: minequest
-description: A Minecraft-inspired challenge app for iOS and Android.
+description: A Minecraft-inspired challenge app for iOS, Android, and Web.
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -8,6 +8,10 @@ environment:
 
 dependencies:
   flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
     sdk: flutter
 
 flutter:

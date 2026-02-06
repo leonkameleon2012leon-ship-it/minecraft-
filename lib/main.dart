@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const String kEmptyChallengeMessage =
@@ -9,7 +10,29 @@ const int kMinAdSeconds = 1;
 const int kMaxAdSeconds = 999;
 
 void main() {
-  runApp(const MineQuestApp());
+  // Add comprehensive error handling
+  FlutterError.onError = (details) {
+    if (kDebugMode) {
+      print('🔴 Flutter Error: ${details.exception}');
+      print('Stack trace: ${details.stack}');
+    }
+    FlutterError.presentError(details);
+  };
+
+  runZonedGuarded(
+    () {
+      if (kDebugMode) {
+        print('🚀 Starting MineQuest app...');
+      }
+      runApp(const MineQuestApp());
+    },
+    (error, stack) {
+      if (kDebugMode) {
+        print('🔴 Uncaught error: $error');
+        print('Stack trace: $stack');
+      }
+    },
+  );
 }
 
 class MineQuestApp extends StatelessWidget {
@@ -17,24 +40,43 @@ class MineQuestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF2E7D32),
-      brightness: Brightness.dark,
-    );
+    if (kDebugMode) {
+      print('✅ Building MineQuestApp');
+    }
+    
+    try {
+      final colorScheme = ColorScheme.fromSeed(
+        seedColor: const Color(0xFF2E7D32),
+        brightness: Brightness.dark,
+      );
 
-    return MaterialApp(
-      title: 'MineQuest',
-      theme: ThemeData(
-        colorScheme: colorScheme,
-        scaffoldBackgroundColor: const Color(0xFF101615),
-        useMaterial3: true,
-        textTheme: const TextTheme(
-          headlineMedium: TextStyle(fontWeight: FontWeight.bold),
-          titleLarge: TextStyle(fontWeight: FontWeight.w600),
+      return MaterialApp(
+        title: 'MineQuest',
+        theme: ThemeData(
+          colorScheme: colorScheme,
+          scaffoldBackgroundColor: const Color(0xFF101615),
+          useMaterial3: true,
+          textTheme: const TextTheme(
+            headlineMedium: TextStyle(fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
-      ),
-      home: const WelcomeScreen(),
-    );
+        home: const WelcomeScreen(),
+      );
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('🔴 Error building MineQuestApp: $e');
+        print('Stack trace: $stackTrace');
+      }
+      // Return a minimal error screen
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Error loading app: $e'),
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -43,49 +85,65 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MineQuestScaffold(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const MinecraftAnimation(height: 180),
-          const SizedBox(height: 24),
-          Text(
-            'MineQuest',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Twoja codzienna dawka minecraftowych wyzwań.',
-            style: TextStyle(fontSize: 16, color: Color(0xFFB0BEC5)),
-          ),
-          const SizedBox(height: 32),
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const PlayerSetupScreen(),
+    if (kDebugMode) {
+      print('✅ Building WelcomeScreen');
+    }
+    
+    try {
+      return MineQuestScaffold(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const MinecraftAnimation(height: 180),
+            const SizedBox(height: 24),
+            Text(
+              'MineQuest',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Twoja codzienna dawka minecraftowych wyzwań.',
+              style: TextStyle(fontSize: 16, color: Color(0xFFB0BEC5)),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PlayerSetupScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Rozpocznij przygodę'),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: Color(0xFFFFD54F)),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Animacje inspirowane światem Minecrafta wprowadzą Cię w klimat.',
+                    style: TextStyle(color: Color(0xFFCFD8DC)),
+                  ),
                 ),
-              );
-            },
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Rozpocznij przygodę'),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.auto_awesome, color: Color(0xFFFFD54F)),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Animacje inspirowane światem Minecrafta wprowadzą Cię w klimat.',
-                  style: TextStyle(color: Color(0xFFCFD8DC)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ),
+      );
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('🔴 Error building WelcomeScreen: $e');
+        print('Stack trace: $stackTrace');
+      }
+      return Scaffold(
+        body: Center(
+          child: Text('Error: $e'),
+        ),
+      );
+    }
   }
 }
 
@@ -136,6 +194,10 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print('✅ Building PlayerSetupScreen');
+    }
+    
     return MineQuestScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,6 +322,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print('✅ Building ChallengeScreen for ${widget.playerName}');
+    }
+    
     return MineQuestScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,6 +397,10 @@ class MineQuestScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print('✅ Building MineQuestScaffold');
+    }
+    
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -364,68 +434,139 @@ class MinecraftAnimation extends StatefulWidget {
 
 class _MinecraftAnimationState extends State<MinecraftAnimation>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+  AnimationController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(reverse: true);
+    if (kDebugMode) {
+      print('✅ Initializing MinecraftAnimation');
+    }
+    
+    try {
+      _controller = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 4),
+      )..repeat(reverse: true);
+      
+      if (kDebugMode) {
+        print('✅ MinecraftAnimation controller created successfully');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('🔴 Error initializing MinecraftAnimation: $e');
+        print('Stack trace: $stackTrace');
+      }
+      _controller = null;
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // If animation controller failed to initialize, show static version
+    if (_controller == null) {
+      return _buildStaticAnimation();
+    }
+    
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _controller!,
       builder: (context, child) {
-        final t = Curves.easeInOut.transform(_controller.value);
-        return SizedBox(
-          height: widget.height,
-          child: Stack(
-            children: [
-              _buildBlock(
-                color: const Color(0xFF6D4C41),
-                offset: Offset(20 + 18 * t, 20 + 8 * t),
-                size: 60,
-              ),
-              _buildBlock(
-                color: const Color(0xFF2E7D32),
-                offset: Offset(110 - 10 * t, 40 + 12 * t),
-                size: 50,
-              ),
-              _buildBlock(
-                color: const Color(0xFF0277BD),
-                offset: Offset(60 + 15 * t, 90 - 8 * t),
-                size: 45,
-              ),
-              _buildBlock(
-                color: const Color(0xFFFFB300),
-                offset: Offset(170 - 20 * t, 70 - 6 * t),
-                size: 40,
-              ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    '⛏️',
-                    style: TextStyle(fontSize: 32 + 6 * t),
+        try {
+          final t = Curves.easeInOut.transform(_controller!.value);
+          return SizedBox(
+            height: widget.height,
+            child: Stack(
+              children: [
+                _buildBlock(
+                  color: const Color(0xFF6D4C41),
+                  offset: Offset(20 + 18 * t, 20 + 8 * t),
+                  size: 60,
+                ),
+                _buildBlock(
+                  color: const Color(0xFF2E7D32),
+                  offset: Offset(110 - 10 * t, 40 + 12 * t),
+                  size: 50,
+                ),
+                _buildBlock(
+                  color: const Color(0xFF0277BD),
+                  offset: Offset(60 + 15 * t, 90 - 8 * t),
+                  size: 45,
+                ),
+                _buildBlock(
+                  color: const Color(0xFFFFB300),
+                  offset: Offset(170 - 20 * t, 70 - 6 * t),
+                  size: 40,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      '⛏️',
+                      style: TextStyle(fontSize: 32 + 6 * t),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
+        } catch (e, stackTrace) {
+          if (kDebugMode) {
+            print('🔴 Error rendering MinecraftAnimation: $e');
+            print('Stack trace: $stackTrace');
+          }
+          return _buildStaticAnimation();
+        }
       },
+    );
+  }
+
+  Widget _buildStaticAnimation() {
+    // Fallback static version without animation
+    return SizedBox(
+      height: widget.height,
+      child: Stack(
+        children: [
+          _buildBlock(
+            color: const Color(0xFF6D4C41),
+            offset: const Offset(20, 20),
+            size: 60,
+          ),
+          _buildBlock(
+            color: const Color(0xFF2E7D32),
+            offset: const Offset(110, 40),
+            size: 50,
+          ),
+          _buildBlock(
+            color: const Color(0xFF0277BD),
+            offset: const Offset(60, 90),
+            size: 45,
+          ),
+          _buildBlock(
+            color: const Color(0xFFFFB300),
+            offset: const Offset(170, 70),
+            size: 40,
+          ),
+          const Positioned(
+            right: 0,
+            bottom: 0,
+            child: Opacity(
+              opacity: 0.7,
+              child: Text(
+                '⛏️',
+                style: TextStyle(fontSize: 32),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
