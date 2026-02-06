@@ -210,9 +210,20 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   ];
 
   String? _currentChallenge;
+  String? _previousChallenge;
   bool _isWatchingAd = false;
 
-  String _pickChallenge() => _challenges[_random.nextInt(_challenges.length)];
+  String _pickChallenge() {
+    if (_challenges.length < 2) {
+      return _challenges.first;
+    }
+    String candidate;
+    do {
+      candidate = _challenges[_random.nextInt(_challenges.length)];
+    } while (candidate == _previousChallenge);
+    _previousChallenge = candidate;
+    return candidate;
+  }
 
   Future<void> _watchAdAndGetChallenge() async {
     if (_isWatchingAd) {
@@ -447,11 +458,13 @@ class AdDialog extends StatefulWidget {
 
 class _AdDialogState extends State<AdDialog> {
   late int _secondsLeft;
+  late int _totalSeconds;
 
   @override
   void initState() {
     super.initState();
-    _secondsLeft = widget.seconds;
+    _totalSeconds = widget.seconds.clamp(1, 999);
+    _secondsLeft = _totalSeconds;
     _tick();
   }
 
@@ -471,8 +484,7 @@ class _AdDialogState extends State<AdDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final totalSeconds = widget.seconds.clamp(1, 999);
-    final progress = (totalSeconds - _secondsLeft) / totalSeconds;
+    final progress = (_totalSeconds - _secondsLeft) / _totalSeconds;
 
     return AlertDialog(
       backgroundColor: const Color(0xFF1B2322),
